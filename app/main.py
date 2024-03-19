@@ -14,18 +14,18 @@ def main():
     
     data = con.recv(1024).decode('utf-8').splitlines()
 
-    path = data[0].split(" ")
+    path = data[0].split(" ")[1]
 
-    if path[1] == "/":
+    if path == "/":
         con.send(b"HTTP/1.1 200 OK \r\n\r\n")
+    elif path.startswith("/echo/"):
+        
+        msg = path[len("/echo/"):]
+        mlen = len(msg)
+        con.send(f"HTTP/1.1 200 OK \r\nContent-Type: text/plain\r\nContent-Length: {mlen}\r\n\r\n{msg}".encode())
     else:
         con.send(b"HTTP/1.1 404 Not Found \r\n\r\n")
 
-
-
-
-    
-    con.send(b"HTTP/1.1 200 OK\r\n\r\n")
 
 
 
