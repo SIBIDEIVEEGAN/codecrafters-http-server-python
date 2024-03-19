@@ -23,6 +23,12 @@ def main():
         msg = path[len("/echo/"):]
         mlen = len(msg)
         con.send(f"HTTP/1.1 200 OK \r\nContent-Type: text/plain\r\nContent-Length: {mlen}\r\n\r\n{msg}".encode())
+    elif path == "/user-agent":
+        user_agent = data[2].split(":", 1)[1].strip()
+       
+        mlen = len(user_agent)
+        con.send(f"HTTP/1.1 200 OK \r\nContent-Type: text/plain\r\nContent-Length: {mlen}\r\n\r\n{user_agent}".encode())
+
     else:
         con.send(b"HTTP/1.1 404 Not Found \r\n\r\n")
 
