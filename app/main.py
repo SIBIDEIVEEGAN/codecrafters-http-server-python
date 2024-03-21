@@ -1,6 +1,8 @@
 # Uncomment this to pass the first stage
 import socket
 import threading
+import os
+import sys
 
 
 def main():
@@ -28,13 +30,30 @@ def handle_client(con, adr):
     if path == "/":
         con.send(b"HTTP/1.1 200 OK \r\n\r\n")
     elif path.startswith("/echo/"):
-        msg = path[len("/echo/"):]
+        msg =  msg = path[len("/echo/"):]
         mlen = len(msg)
         con.send(f"HTTP/1.1 200 OK \r\nContent-Type: text/plain\r\nContent-Length: {mlen}\r\n\r\n{msg}".encode())
     elif path == "/user-agent":
         user_agent = data[2].split(":", 1)[1].strip()
         mlen = len(user_agent)
         con.send(f"HTTP/1.1 200 OK \r\nContent-Type: text/plain\r\nContent-Length: {mlen}\r\n\r\n{user_agent}".encode())
+    elif path.startswith("/files/"):
+        
+        directory = ""
+        if sys.argv[1] == "--directory":
+            directory = sys.argv[2]
+        filename =  path[len("/files/"):]
+        file_path = os.path.join(directory, filename)
+        response = "HTTP/1.1 404 Not Found \r\n\r\n"
+        if os.path.exists(file_path):
+            with open(file_path,"r") as file:
+                fileContent = file.read()
+                response = f"HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: {len(fileContent)}\r\n\r\n{fileContent}\r\n"
+
+       
+        print(response)
+        con.send(response.encode())
+     
     else:
         con.send(b"HTTP/1.1 404 Not Found \r\n\r\n")
 
