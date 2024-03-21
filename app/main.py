@@ -25,10 +25,10 @@ def main():
 def handle_client(con, adr):
 
     todata = con.recv(1024).decode('utf-8')
-    data = con.recv(1024).decode('utf-8').splitlines()
+    data = todata.splitlines()
 
     path = data[0].split(" ")[1]
-
+    method = data[0].split(" ")[0]
     if path == "/":
         con.send(b"HTTP/1.1 200 OK \r\n\r\n")
     elif path.startswith("/echo/"):
@@ -47,7 +47,8 @@ def handle_client(con, adr):
         filename =  path[len("/files/"):]
         file_path = os.path.join(directory, filename)
         response = "HTTP/1.1 404 Not Found \r\n\r\n"
-        if data[0] == "GET":
+        print(data[0])
+        if method == "GET":
             if os.path.exists(file_path):
                 with open(file_path,"r") as file:
                     fileContent = file.read()
@@ -56,7 +57,7 @@ def handle_client(con, adr):
             file_content = todata.split("\r\n\r\n")[-1]
             with open(file_path, "w") as file:
                 file.write(file_content)
-            response = "HTTP/1.1 201 Created\r\n\r\n"
+            response = "HTTP/1.1 201 Created \r\n\r\n"
         
         con.send(response.encode())
     
